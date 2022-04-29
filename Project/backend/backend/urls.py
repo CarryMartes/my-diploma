@@ -16,13 +16,14 @@ Including another URLconf
 from django.conf import settings
 from django.contrib import admin
 from django.conf.urls.static import static
-from django.conf.urls import url, include
+from django.urls import re_path, include
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^api/', include('auth.urls')),
-    url(r'^api/', include('project.urls')),
-    url(r"^accounts/", include("allauth.urls")),
+    re_path(r'admin/', admin.site.urls),
+    re_path(r'api/', include('auth.urls')),
+    re_path(r'api/', include('project.urls')),
+    re_path(r"accounts/", include("allauth.urls")),
+    re_path('quiz/', include('quiz.urls'))
 ]
 
 if settings.DEBUG:

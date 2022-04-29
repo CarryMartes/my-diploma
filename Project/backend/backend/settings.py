@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     'auth.apps.AuthConfig',
     'project',
+    'quiz',
     'rest_framework_simplejwt.token_blacklist',
     'django.contrib.sites',
     'corsheaders',
@@ -105,7 +106,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'postgres', 
         'USER': 'postgres', 
-        'PASSWORD': 'root',
+        'PASSWORD': '12345',
         'HOST': '127.0.0.1', 
         'PORT': '5432',
     }
