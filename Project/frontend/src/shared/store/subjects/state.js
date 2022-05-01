@@ -1,3 +1,4 @@
 export const authState = {
-  currentSubject: {}
+  currentSubject: {},
+  dialog: {}
 };

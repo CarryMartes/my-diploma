@@ -9,6 +9,15 @@ export function subjectReducer(state = authState, action) {
         currentSubject: action.payload
       };
     }
+    case actions.OPEN_DIALOG: {
+      return {
+        ...state,
+        dialog: {
+          ...state.dialog,
+          [action.payload.key]: action.payload.value
+        }
+      };
+    }
     default:
       return state;
   }

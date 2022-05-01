@@ -5,7 +5,8 @@ const endpoints = {
   userList: '/users/',
   signUp: 'registration/',
   userProfile: 'userProfile/',
-  login: 'login/'
+  login: 'login/',
+  logout: 'logout/'
 };
 
 export const getUsersList = async (params) => {
@@ -27,5 +28,11 @@ export const login = async (body) => {
 
 export const userProfile = async () => {
   const res = await apiInstance.get(endpoints.userProfile);
+  return res.data;
+};
+
+export const userLogout = async (data) => {
+  const res = await apiInstance.post(endpoints.logout, data);
+
   return res.data;
 };

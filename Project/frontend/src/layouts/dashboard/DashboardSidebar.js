@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
@@ -14,6 +14,7 @@ import Scrollbar from '../../components/Scrollbar';
 import NavSection from '../../components/NavSection';
 //
 import sidebarConfig from './SidebarConfig';
+import { useSelector } from 'react-redux';
 
 // ----------------------------------------------------------------------
 
@@ -44,6 +45,12 @@ DashboardSidebar.propTypes = {
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
 
+  const [sidebar_config, setSidebarcConfig] = useState(sidebarConfig);
+
+  const userProfile = useSelector((state) => {
+    return state.user['userProfile'];
+  });
+
   const isDesktop = useResponsive('up', 'lg');
 
   useEffect(() => {
@@ -51,6 +58,16 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       onCloseSidebar();
     }
   }, [pathname]);
+
+  useEffect(() => {
+    if (userProfile && userProfile.status === 'student') {
+      setSidebarcConfig((prev) => {
+        const copy = [...prev];
+        copy[1].title = 'Teachers';
+        return copy.filter((res) => res.title !== 'dashboard');
+      });
+    }
+  }, [userProfile]);
 
   const renderContent = (
     <Scrollbar
@@ -67,19 +84,21 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
         <Link underline="none" component={RouterLink} to="#">
           <AccountStyle>
             <Avatar src={account.photoURL} alt="photoURL" />
-            <Box sx={{ ml: 2 }}>
-              <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
-              </Typography>
-            </Box>
+            {userProfile && (
+              <Box sx={{ ml: 2 }}>
+                <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
+                  {userProfile.nickname}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {userProfile.status}
+                </Typography>
+              </Box>
+            )}
           </AccountStyle>
         </Link>
       </Box>
 
-      <NavSection navConfig={sidebarConfig} />
+      <NavSection navConfig={sidebar_config} />
 
       <Box sx={{ flexGrow: 1 }} />
     </Scrollbar>

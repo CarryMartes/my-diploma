@@ -1,103 +1,71 @@
 // material
-import {
-  Autocomplete,
-  Avatar,
-  Button,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  TextField,
-  Typography
-} from '@mui/material';
-import { Form, Formik, FormikProvider, useFormik } from 'formik';
-import { useState, useEffect } from 'react';
-import { addSubjects, getSubjects } from 'src/shared/api/request/subjects';
+import { LoadingButton } from '@mui/lab';
+import { Stack, TextField, Typography } from '@mui/material';
+import { Form, FormikProvider, useFormik } from 'formik';
+import { useState } from 'react';
+import withAddDialog from '../global/AddDialogHOC';
+import * as Yup from 'yup';
+import { addRepository } from 'src/shared/api/request/repos';
 
-export default function AddDialog({ dialog, handleDialogClose }) {
-  const [courses, setCourses] = useState([]);
-  const [selected, setSelected] = useState([]);
+function AddDialog({ id, triggerRepositories }) {
+  const [loading, setLoading] = useState(false);
+  const FormSchema = Yup.object().shape({
+    name: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Name required')
+  });
   const formik = useFormik({
     initialValues: {
-      courseName: ''
+      name: '',
+      description: ''
     },
+    validationSchema: FormSchema,
     onSubmit: function () {
-      addSubjects({
-        courses: selected
-      })
-        .then((res) => {
-          console.log('RES success');
-        })
-        .finally(() => {
-          handleDialogClose();
-        });
+      submitRepository();
     }
   });
-  useEffect(() => {
-    if (!dialog) return;
-    getSubjects().then((res) => {
-      setCourses(res.data);
-    });
-  }, [dialog]);
 
-  const { errors, touched, values, isSubmitting, handleSubmit, getFieldProps } = formik;
+  const { errors, touched, handleSubmit, getFieldProps } = formik;
+
+  const submitRepository = () => {
+    setLoading(true);
+    addRepository({
+      ...formik.values,
+      id
+    })
+      .then((res) => {
+        triggerRepositories();
+      })
+      .finally(() => setLoading(false));
+  };
 
   return (
-    <Dialog
-      open={dialog}
-      onClose={handleDialogClose}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-    >
-      <DialogTitle id="alert-dialog-title">{'Search courses by code '}</DialogTitle>
-      <DialogContent>
-        <FormikProvider value={formik}>
-          <Form onSubmit={handleSubmit}>
-            <Stack spacing={3} width="400px">
-              <Autocomplete
-                id="combo-box-demo"
-                options={courses}
-                multiple
-                sx={{ width: '100%', marginTop: '20px' }}
-                getOptionLabel={(result) => `${result.code}`}
-                onChange={(_, value) => {
-                  setSelected(value);
-                }}
-                renderOption={(props, option) => (
-                  <li {...props}>
-                    <Typography>{option.name}</Typography>
-                  </li>
-                )}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Course code"
-                    id="github_username"
-                    {...getFieldProps('nickname')}
-                    variant="outlined"
-                    InputProps={{
-                      ...params.InputProps,
-                      endAdornment: (
-                        <>
-                          {/* {loading ? <CircularProgress color="inherit" size={20} /> : null} */}
-                          {params.InputProps.endAdornment}
-                        </>
-                      )
-                    }}
-                  />
-                )}
-              />
-            </Stack>
-          </Form>
-        </FormikProvider>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleSubmit} autoFocus>
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <FormikProvider value={formik}>
+      <Form onSubmit={handleSubmit}>
+        <Stack spacing={3} width="400px" marginTop="10px" justifyContent="right">
+          <TextField
+            variant="outlined"
+            label="Name"
+            {...getFieldProps('name')}
+            error={Boolean(touched.name && errors.name)}
+            helperText={touched.name && errors.name}
+          />
+          <TextField
+            {...getFieldProps('description')}
+            multiline
+            rows={4}
+            variant="outlined"
+            label="Description"
+          />
+          <Stack alignItems="end">
+            <LoadingButton loading={loading} sx={{ maxWidth: '200px' }} onClick={submitRepository}>
+              Save
+            </LoadingButton>
+          </Stack>
+        </Stack>
+      </Form>
+    </FormikProvider>
   );
 }
+
+AddDialog.displayName = 'repostiroyAddDialog';
+
+export default withAddDialog(AddDialog);

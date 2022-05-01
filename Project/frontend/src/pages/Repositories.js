@@ -24,6 +24,9 @@ import { useParams } from 'react-router-dom';
 import { getRepositories } from 'src/shared/api/request/repos';
 import SearchNotFound from 'src/components/SearchNotFound';
 import Iconify from 'src/components/Iconify';
+import AddDialog from 'src/components/repositories/AddDialog';
+import { useDispatch, useSelector } from 'react-redux';
+import { openDialog } from 'src/shared/store/subjects/actions';
 
 const TABLE_HEAD = [
   { id: 'id', label: 'ID', alignRight: false },
@@ -61,8 +64,6 @@ const MENU_ITEMS = [
 ];
 
 const Repositories = () => {
-  const [selected, setSelected] = useState([]);
-  const [filterName, setFilterName] = useState('');
   const [currentSubject, setCurrentSubject] = useState(null);
   const [repositories, setRepositories] = useState([]);
   const [currentOpened, setCurrentOpened] = useState(null);
@@ -97,6 +98,19 @@ const Repositories = () => {
     [currentOpened]
   );
 
+  const dispatch = useDispatch();
+
+  const dialog = useSelector((state) => state.subject['dialog']);
+
+  const openModal = () => {
+    dispatch(
+      openDialog({
+        key: AddDialog.displayName,
+        value: !dialog[AddDialog.displayName]
+      })
+    );
+  };
+
   useEffect(() => {
     getSubject(id).then((res) => {
       setCurrentSubject(res);
@@ -106,18 +120,25 @@ const Repositories = () => {
     });
   }, []);
 
+  const triggerRepositories = () => {
+    getRepositories({ id }).then((res) => {
+      setRepositories(res.repos);
+    });
+    openModal();
+  };
+
   return (
     <Page title="Repostitories">
       <Container>
         <Stack alignItems="center" direction="row" justifyContent="space-between" mb={5}>
           <Typography variant="h4">
-            {currentSubject && currentSubject.subject.name + "'s repositories"}
+            {currentSubject && `${currentSubject.subject.name}s repositories`}
           </Typography>
           <CustomButton
             value="Add repository"
             events={{
               onClick: () => {
-                console.log('HERE WE go');
+                openModal();
               }
             }}
           />
@@ -131,25 +152,20 @@ const Repositories = () => {
                   headLabel={TABLE_HEAD}
                   rowCount={USERLIST.length}
                   onRequestSort={() => null}
-                  numSelected={selected.length}
+                  numSelected={0}
                 />
                 <TableBody>
                   {repositories.map((row) => {
                     const { id, name, description } = row;
-                    const isItemSelected = selected.indexOf(name) !== -1;
 
                     return (
-                      <TableRow
-                        hover
-                        key={id}
-                        tabIndex={-1}
-                        role="checkbox"
-                        selected={isItemSelected}
-                        aria-checked={isItemSelected}
-                      >
+                      <TableRow hover key={id} tabIndex={-1} role="checkbox">
                         <TableCell align="left">{id}</TableCell>
                         <TableCell align="left">
-                          <Typography variant="subtitle2" sx={{ textDecoration: 'underline' }}>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ textDecoration: 'underline', cursor: 'pointer' }}
+                          >
                             {name}
                           </Typography>
                         </TableCell>
@@ -159,7 +175,6 @@ const Repositories = () => {
                             menuList={menu_items}
                             triggerOpen={() => {
                               setCurrentOpened(row);
-                              console.log(row, 'Row');
                             }}
                           />
                         </TableCell>
@@ -172,7 +187,7 @@ const Repositories = () => {
                     <TableRow>
                       <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
                         <SearchNotFound
-                          searchQuery={filterName}
+                          searchQuery={''}
                           title=""
                           descr="The course repostiroty is empty"
                         />
@@ -185,6 +200,12 @@ const Repositories = () => {
           </Scrollbar>
         </Card>
       </Container>
+      <AddDialog
+        openUp={openModal}
+        dialog={dialog[AddDialog.displayName]}
+        id={id}
+        triggerRepositories={triggerRepositories}
+      />
     </Page>
   );
 };

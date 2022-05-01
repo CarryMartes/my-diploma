@@ -6,3 +6,10 @@ export const setCurrentSubject = (payload) => {
     payload
   };
 };
+
+export const openDialog = (payload) => {
+  return {
+    type: actions.OPEN_DIALOG,
+    payload
+  };
+};
