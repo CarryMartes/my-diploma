@@ -76,14 +76,16 @@ export default function EcommerceShop() {
           <Typography variant="h4" gutterBottom>
             Subjects
           </Typography>
-          <Button
-            variant="contained"
-            to="#"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={() => setDialog(true)}
-          >
-            Add subject
-          </Button>
+          {user && user.status === 'teacher' && (
+            <Button
+              variant="contained"
+              to="#"
+              startIcon={<Iconify icon="eva:plus-fill" />}
+              onClick={() => setDialog(true)}
+            >
+              Add subject
+            </Button>
+          )}
         </Stack>
 
         <Stack

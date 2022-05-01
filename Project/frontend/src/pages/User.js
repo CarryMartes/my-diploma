@@ -1,6 +1,6 @@
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 // material
 import {
@@ -27,6 +27,8 @@ import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 //
 import USERLIST from '../_mocks_/user';
+import { useSelector } from 'react-redux';
+import { getStudents } from 'src/shared/api/request/students';
 
 // ----------------------------------------------------------------------
 
@@ -77,6 +79,15 @@ export default function User() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [users, setUsers] = useState([]);
+
+  const user = useSelector((state) => state.user['userProfile']);
+
+  useEffect(() => {
+    getStudents().then((res) => {
+      setUsers(res.users);
+    });
+  }, []);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -126,25 +137,27 @@ export default function User() {
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
+  // const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
 
-  const isUserNotFound = filteredUsers.length === 0;
+  // const isUserNotFound = filteredUsers.length === 0;
 
   return (
     <Page title="User">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            {user && (user.status === 'teacher' ? 'Students' : 'Teachers')}
           </Typography>
-          <Button
-            variant="contained"
-            component={RouterLink}
-            to="#"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-          >
-            New User
-          </Button>
+          {user && user.status === 'teacher' && (
+            <Button
+              variant="contained"
+              component={RouterLink}
+              to="#"
+              startIcon={<Iconify icon="eva:plus-fill" />}
+            >
+              New User
+            </Button>
+          )}
         </Stack>
 
         <Card>
@@ -167,10 +180,10 @@ export default function User() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers
+                  {users
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => {
-                      const { id, name, role, status, company, avatarUrl, isVerified } = row;
+                    .map((row, id) => {
+                      const { student, user } = row;
                       const isItemSelected = selected.indexOf(name) !== -1;
 
                       return (
@@ -190,23 +203,16 @@ export default function User() {
                           </TableCell>
                           <TableCell component="th" scope="row" padding="none">
                             <Stack direction="row" alignItems="center" spacing={2}>
-                              <Avatar alt={name} src={avatarUrl} />
+                              {/* <Avatar alt={name} src={avatarUrl} /> */}
                               <Typography variant="subtitle2" noWrap>
-                                {name}
+                                {student.nickname}
                               </Typography>
                             </Stack>
                           </TableCell>
-                          <TableCell align="left">{company}</TableCell>
-                          <TableCell align="left">{role}</TableCell>
-                          <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
-                          <TableCell align="left">
-                            <Label
-                              variant="ghost"
-                              color={(status === 'banned' && 'error') || 'success'}
-                            >
-                              {sentenceCase(status)}
-                            </Label>
-                          </TableCell>
+                          <TableCell align="left">{user.email}</TableCell>
+                          <TableCell align="left">{student.stud_id}</TableCell>
+                          <TableCell align="left">{user.username}</TableCell>
+                          <TableCell align="left">{user.date_joined}</TableCell>
 
                           <TableCell align="right">
                             <UserMoreMenu />
@@ -220,7 +226,7 @@ export default function User() {
                     </TableRow>
                   )}
                 </TableBody>
-                {isUserNotFound && (
+                {users.length === 0 && (
                   <TableBody>
                     <TableRow>
                       <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
