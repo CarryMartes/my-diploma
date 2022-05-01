@@ -73,11 +73,10 @@ class RegisterApi(generics.GenericAPIView):
             "message": "User Created Successfully.  Now perform Login",
         })
 
-# token: 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
-# secret: a8d22304b9b8a4eb8b3fe7671b679ddaa7cc17ff
+# token: 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
 def getUsersList(request):
     username = request.GET['username']
-    response = requests.get("https://api.github.com/users/" + username, auth=('CarryMartes','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'))
+    response = requests.get("https://api.github.com/users/" + username, auth=('CarryMartes','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'))
     return JsonResponse(response.json())
 
 class Home(TemplateView):

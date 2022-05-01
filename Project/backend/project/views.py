@@ -78,6 +78,35 @@ class UserSubjectsView(generics.GenericAPIView):
             "data": {}
         })
 
+class StudentsView(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated, )
+    def get(self, request):
+        teacher = Teachers.objects.get(user=request.user)
+        subjects = SubjectTeacherRelation.objects.filter(teacher=teacher)
+        stud_subjects = []
+        for sub in subjects:
+            try:
+                stud = SubjectStudentRelation.objects.get(subject=sub.subject)
+                stud_subjects.append({
+                    "student": model_to_dict(stud.student),
+                    "user": model_to_dict(stud.student.user)
+                })
+            except SubjectStudentRelation.DoesNotExist:
+                print("doesn't")
+        return JsonResponse({"users": stud_subjects})
+
+class StudentRepoAdd(generics.GenericAPIView):
+    def post(self, request):
+        subject = Subjects.objects.get(id=request.data['id'])
+        student = Students.objects.get(id=request.data['stud_id'])
+        student_subject = SubjectStudentRelation()
+        student_subject.student = student
+        student_subject.subject = subject
+        student_subject.save()
+        return JsonResponse({
+            "message": "successfully added"
+        })
+
 class RepositoriesView(generics.GenericAPIView):
     permission_classes = (IsAuthenticated, )
     def post(self, request):
@@ -87,9 +116,12 @@ class RepositoriesView(generics.GenericAPIView):
         repository.description = request.data['description']
         repository.subject = subject
         repository.save()
+        print(json.dumps({
+            'name': request.data['name']
+        }))
         res = rqst.post('https://api.github.com/orgs/diplom-project/repos', data=json.dumps({
             'name': request.data['name']
-        }), auth=('CarryMartes','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'),  headers={'accept': 'application/json'})
+        }), auth=('CarryMartes','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'),  headers={'accept': 'application/json'})
         return JsonResponse({"message": res.json()})
     def get(self, request):
         subject = Subjects.objects.get(id=request.GET.get('id'))
