@@ -33,11 +33,11 @@ import { getStudents } from 'src/shared/api/request/students';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'ni', label: 'Name', alignRight: false },
+  { id: 'company', label: 'Email', alignRight: false },
+  { id: 'role', label: 'Student id', alignRight: false },
+  { id: 'isVerified', label: 'Github username', alignRight: false },
+  { id: 'status', label: 'Added date', alignRight: false },
   { id: '' }
 ];
 
