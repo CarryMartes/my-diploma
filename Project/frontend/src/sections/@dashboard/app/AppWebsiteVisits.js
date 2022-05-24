@@ -11,17 +11,27 @@ const CHART_DATA = [
   {
     name: 'Team A',
     type: 'column',
-    data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30]
+    data: Array.from({ length: 11 }, (v, x) => 5)
   },
   {
     name: 'Team B',
     type: 'area',
-    data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43]
+    data: Array.from({ length: 11 }, (v, x) => 6)
   },
   {
     name: 'Team C',
+    type: 'area',
+    data: Array.from({ length: 11 }, (v, x) => 1)
+  },
+  {
+    name: 'Team M',
+    type: 'column',
+    data: Array.from({ length: 11 }, (v, x) => 2)
+  },
+  {
+    name: 'Team K',
     type: 'line',
-    data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39]
+    data: Array.from({ length: 11 }, (v, x) => 3)
   }
 ];
 

@@ -64,7 +64,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       setSidebarcConfig((prev) => {
         const copy = [...prev];
         copy[1].title = 'Teachers';
-        return copy.filter((res) => res.title !== 'dashboard');
+        return copy.filter((res) => res.title !== 'dashboard' || res.title != 'Students');
       });
     }
   }, [userProfile]);

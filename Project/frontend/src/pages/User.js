@@ -27,8 +27,11 @@ import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 //
 import USERLIST from '../_mocks_/user';
-import { useSelector } from 'react-redux';
-import { getStudents } from 'src/shared/api/request/students';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllStudents, getStudents } from 'src/shared/api/request/students';
+import AddDialog from 'src/components/users/AddDialog';
+import { openDialog } from 'src/shared/store/subjects/actions';
+import { getAllRepositories } from 'src/shared/api/request/repos';
 
 // ----------------------------------------------------------------------
 
@@ -80,6 +83,11 @@ export default function User() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [users, setUsers] = useState([]);
+  const [dialogUsers, setDialogUsers] = useState([]);
+  const [dialogRepositories, setDialogRepositories] = useState([]);
+  const dispatch = useDispatch();
+
+  const dialog = useSelector((state) => state.subject['dialog']);
 
   const user = useSelector((state) => state.user['userProfile']);
 
@@ -88,6 +96,27 @@ export default function User() {
       setUsers(res.users);
     });
   }, []);
+
+  useEffect(() => {
+    if (dialog[AddDialog.displayName] && dialogUsers.length === 0) {
+      getAllStudents().then((res) => {
+        setDialogUsers(
+          res.students.map((res) => {
+            res.value = res.stud_id;
+            return res;
+          })
+        );
+      });
+      getAllRepositories().then((res) => {
+        setDialogRepositories(
+          res.repos.map((res) => {
+            res.value = res.name;
+            return res;
+          })
+        );
+      });
+    }
+  }, [dialog[AddDialog.displayName]]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -135,6 +164,19 @@ export default function User() {
     setFilterName(event.target.value);
   };
 
+  const openUpModal = () => {
+    dispatch(
+      openDialog({
+        key: AddDialog.displayName,
+        value: !dialog[AddDialog.displayName]
+      })
+    );
+  };
+
+  const triggerUsers = () => {
+    openUpModal();
+  };
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
   // const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
@@ -152,10 +194,11 @@ export default function User() {
             <Button
               variant="contained"
               component={RouterLink}
+              onClick={() => openUpModal()}
               to="#"
               startIcon={<Iconify icon="eva:plus-fill" />}
             >
-              New User
+              Add student
             </Button>
           )}
         </Stack>
@@ -238,17 +281,24 @@ export default function User() {
               </Table>
             </TableContainer>
           </Scrollbar>
-
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={USERLIST.length}
+            count={users.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
+
+        <AddDialog
+          openUp={openUpModal}
+          dialog={dialog[AddDialog.displayName]}
+          users={dialogUsers}
+          triggerUsers={triggerUsers}
+          repositories={dialogRepositories}
+        />
       </Container>
     </Page>
   );

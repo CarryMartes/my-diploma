@@ -19,11 +19,10 @@ class Repositories(models.Model):
     def __str__(self) -> str:
         return self.name
 
-
         
 class SubjectStudentRelation(models.Model):
     student = models.ForeignKey(Students, on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subjects, on_delete=models.CASCADE)
+    repository = models.ForeignKey(Repositories, on_delete=models.CASCADE, default=0)
 
 class SubjectTeacherRelation(models.Model):
     teacher = models.ForeignKey(Teachers, on_delete=models.CASCADE)
