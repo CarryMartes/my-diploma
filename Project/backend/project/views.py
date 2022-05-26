@@ -129,7 +129,7 @@ class StudentRepoAdd(generics.GenericAPIView):
                 invitation = rqst.post('https://api.github.com/repos/diplom-project/' + repository['name'] + '/collaborators/' + crt_student.user.username,
                     data=json.dumps({
                         'email': crt_student.user.email
-                    }), auth=('CarryMartes','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'),  headers={'accept': 'application/json'})
+                    }),  headers={'accept': 'application/json', 'Authorization': 'access_token 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'})
                 print(invitation.json())
                 # student_subject.save()
                 
@@ -151,7 +151,7 @@ class RepositoriesView(generics.GenericAPIView):
         }))
         res = rqst.post('https://api.github.com/orgs/diplom-project/repos', data=json.dumps({
             'name': request.data['name']
-        }), auth=('CarryMartes','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'),  headers={'accept': 'application/json'})
+        }), headers={'accept': 'application/json', 'Authorization': 'access_token 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'})
         return JsonResponse({"message": res.json()})
     def get(self, request):
         subject = Subjects.objects.get(id=request.GET.get('id'))
