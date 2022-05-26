@@ -76,7 +76,7 @@ class RegisterApi(generics.GenericAPIView):
 # token: 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
 def getUsersList(request):
     username = request.GET['username']
-    response = requests.get("https://api.github.com/users/" + username, auth=('CarryMartes','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'))
+    response = requests.get("https://api.github.com/users/" + username, auth=('CarryMartes','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'))
     return JsonResponse(response.json())
 
 class Home(TemplateView):
